@@ -71,8 +71,16 @@ public class Account {
             System.out.println("Сумма должна быть положительной");
         }
     }
-    @Override
-    public String toString() {return "";}
-
+    public void displayAccountSummary() {
+        System.out.println("\n" + "=".repeat(80));
+        System.out.println("СВОДКА ПО СЧЕТУ");
+        System.out.println("=".repeat(80));
+        System.out.printf("ID счета: %d\n", id);
+        System.out.printf("Годовая процентная ставка: %.1f%%\n", annualInterestRate);
+        System.out.printf("Текущий баланс: %.2f руб.\n", balance);
+        System.out.printf("Ежемесячный процент: %.2f руб.\n", getMonthlyInterest());
+        System.out.printf("Дата создания: %s\n", dateCreated);
+        System.out.println("=".repeat(80));
+    }
 }
 

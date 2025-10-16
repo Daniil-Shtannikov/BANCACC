@@ -186,6 +186,9 @@ public class Main {
             System.out.println("Транзакции отсутствуют.");
         }
         else System.out.println("Всего транзакций: " + account.getTransactionCount());
+        System.out.println("\nДЕТАЛЬНАЯ ИНФОРМАЦИЯ ПО ТРАНЗАКЦИЯМ ");
+        System.out.println("-".repeat(80));
+        account.getTransactions();
         }
     }
 

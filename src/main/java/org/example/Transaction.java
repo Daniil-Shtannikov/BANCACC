@@ -17,8 +17,9 @@ public class Transaction {
     }
 
     @Override
-    public String toString() {
-        return String.format("%tF %tT | %c | %10.2f | %10.2f | %s",
+    public String toString(){
+        return String.format( "%tF %tT | %c | %10.2f | %10.2f | %s",
                 date, date, type, amount, balance, description);
     }
+
 }

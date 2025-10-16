@@ -1,6 +1,7 @@
 package org.example;
 
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,8 +42,7 @@ public class Account {
 
     public double getMonthlyInterest() {
         double monthlyInterestRate = annualInterestRate / 12 / 100;
-        double monthlyInterest = balance * monthlyInterestRate;
-        return Double.parseDouble(String.format("%.2f", monthlyInterest));
+        return balance * monthlyInterestRate;
     }
 
     public double getAnnualInterestRate() {
@@ -108,6 +108,7 @@ public class Account {
     public int getTransactionCount() {
         return transactions.size();
     }
+
     public int getId() {
         return id;
     }
@@ -122,5 +123,11 @@ public class Account {
 
     public void setBalance(double balance) {
         this.balance = balance;
+    }
+
+    public void getTransactions() {
+        for(Transaction transaction : transactions){
+            System.out.println(transaction.toString());
+        }
     }
 }

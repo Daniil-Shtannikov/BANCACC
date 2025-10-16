@@ -1,113 +1,192 @@
 package org.example;
-import java.text.SimpleDateFormat;
+
 import java.util.Scanner;
 
 public class Main {
-    private static Account[] accounts = new Account[10];
-    private static Scanner scanner = new Scanner(System.in);
-
-    static {
-        for (int i = 0; i < 10; i++) {
-            accounts[i] = new Account(i, 10000);
-        }
+    private final static Account[] accounts = new Account[10];
+    private static void showAccountSummary(Account account) {
+        account.displayAccountSummary();
     }
     public static void main(String[] args) {
-        System.out.println("=== БАНКОВСКОЕ ПРИЛОЖЕНИЕ ===");
-
-        while (true) {
-            int accountId = getValidAccountId();
-            showMainMenu(accountId);
-        }
+        demonstrateTransactions();
+        initializeAccounts();
+        runBankApplication();
     }
-    private static int getValidAccountId() {
-        int id = -1;
+
+    private static void demonstrateTransactions() {
+        System.out.println("ДЕМОНСТРАЦИЯ РАБОТЫ С ТРАНЗАКЦИЯМИ");
+        System.out.println("=".repeat(60));
+
+        Account account = new Account("Семен", 1233, 1100, 7.5);
+
+        account.deposit(500);
+        account.deposit(600);
+        account.deposit(700);
+        account.withdraw(700);
+        account.withdraw(600);
+        account.withdraw(100);
+
+        account.displayAccountSummary();
+
+        System.out.println("\n" + "=".repeat(60));
+        System.out.println("Всего транзакций: " + account.getTransactionCount());
+        System.out.println("=".repeat(60) + "\n\n");
+    }
+
+    private static void initializeAccounts() {
+        for (int i = 0; i < 10; i++) {
+            accounts[i] = new Account("Клиент " + i, i, 10000);
+            accounts[i].setAnnualInterestRate(5.0 + i * 0.5);
+        }
+        System.out.println("Инициализировано " + accounts.length + " банковских счетов с транзакциями");
+    }
+
+    private static void runBankApplication() {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            int accountId = getValidAccountId(scanner);
+
+            if (accountId == -1) {
+                System.out.println("Выход из программы.");
+                break;
+            }
+
+            displayMainMenu(scanner, accountId);
+        }
+        scanner.close();
+    }
+
+    private static int getValidAccountId(Scanner scanner) {
+        int accountId;
 
         while (true) {
-            System.out.print("\nВведите ID счета (0-9): ");
+            System.out.print("\nВведите ID (0-9) или -1 для выхода: ");
 
-            try {
-                id = Integer.parseInt(scanner.nextLine());
+            if (scanner.hasNextInt()) {
+                accountId = scanner.nextInt();
 
-                if (id >= 0 && id <= 9) {
-                    System.out.println("Добро пожаловать! Счет №" + id);
-                    break;
-                } else {
-                    System.out.println("Ошибка: ID должен быть от 0 до 9");
+                if (accountId == -1) {
+                    return -1;
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("Ошибка: введите целое число от 0 до 9");
+
+                if (accountId >= 0 && accountId < 10) {
+                    return accountId;
+                } else {
+                    System.out.println("❌ Неверный ID! Пожалуйста, введите число от 0 до 9.");
+                }
+            } else {
+                System.out.println("❌ Неверный ввод! Пожалуйста, введите число.");
+                scanner.next();
             }
         }
-
-        return id;
     }
 
-    private static void showMainMenu(int accountId) {
+    private static void displayMainMenu(Scanner scanner, int accountId) {
         Account currentAccount = accounts[accountId];
+        boolean inMenu = true;
 
-        while (true) {
-            System.out.println("\n=== ГЛАВНОЕ МЕНЮ ===");
-            System.out.println("1. Просмотр баланса");
-            System.out.println("2. Снять деньги");
-            System.out.println("3. Внести деньги");
-            System.out.println("4. Выйти из меню");
-            System.out.print("Выберите пункт меню (1-4): ");
+        System.out.println("Открыто главное меню для счета ID: " + accountId);
 
-            String choice = scanner.nextLine();
+        while (inMenu) {
+            System.out.println("\n" + "═".repeat(50));
+            System.out.println("ОСНОВНОЕ МЕНЮ - (ID: " + accountId + ")");
+            System.out.println("═".repeat(50));
+            System.out.println("1. Проверить баланс счета");
+            System.out.println("2. Снять со счета");
+            System.out.println("3. Положить на счет");
+            System.out.println("4. Показать историю транзакций");
+            System.out.println("5. Показать сводку по счету");
+            System.out.println("6. Выйти в главное меню");
+            System.out.println("═".repeat(50));
+            System.out.print("Введите пункт меню: ");
 
-            switch (choice) {
-                case "1":
-                    showBalance(currentAccount);
-                    break;
-                case "2":
-                    performWithdrawal(currentAccount);
-                    break;
-                case "3":
-                    performDeposit(currentAccount);
-                    break;
-                case "4":
-                    System.out.println("Выход из меню счета №" + accountId);
-                    return;
-                default:
-                    System.out.println("Ошибка: выберите пункт от 1 до 4");
+            if (scanner.hasNextInt()) {
+                int choice = scanner.nextInt();
+
+                switch (choice) {
+                    case 1:
+                        checkBalance(currentAccount);
+                        break;
+                    case 2:
+                        withdrawMoney(scanner, currentAccount);
+                        break;
+                    case 3:
+                        depositMoney(scanner, currentAccount);
+                        break;
+                    case 4:
+                        showTransactionHistory(currentAccount);
+                        break;
+                    case 5:
+                        showAccountSummary(currentAccount);
+                        break;
+                    case 6:
+                        inMenu = false;
+                        System.out.println("Возврат в главное меню...");
+                        System.out.println("Пользователь вышел из меню счета ID: " + accountId);
+                        break;
+                    default:
+                        System.out.println("❌ Неверный пункт меню! Пожалуйста, выберите 1-6.");
+                }
+            } else {
+                System.out.println("❌ Неверный ввод! Пожалуйста, введите число.");
+                scanner.next();
             }
         }
     }
 
-    private static void showBalance(Account account) {
-        System.out.println("\n=== ТЕКУЩИЙ БАЛАНС ===");
-        System.out.printf("Баланс счета: %.2f руб.\n", account.getBalance());
-        System.out.println("Дата создания: " +
-                new SimpleDateFormat("dd.MM.yyyy").format(account.getDateCreated()));
+    private static void checkBalance(Account account) {
+        System.out.printf("\nБаланс равен: %.2f руб.\n", account.getBalance());
+        System.out.printf("Ежемесячный процент: %.2f руб.\n", account.getMonthlyInterest());
+        System.out.println("Проверен баланс счета ID: " + account.getId() + " = " + account.getBalance());
     }
 
+    private static void withdrawMoney(Scanner scanner, Account account) {
+        System.out.print("Введите сумму для снятия со счета: ");
 
-    private static void performWithdrawal(Account account) {
-        System.out.println("\n=== СНЯТИЕ ДЕНЕГ ===");
-        System.out.printf("Текущий баланс: %.2f руб.\n", account.getBalance());
-        System.out.print("Введите сумму для снятия: ");
+        if (scanner.hasNextDouble()) {
+            double amount = scanner.nextDouble();
 
-        try {
-            double amount = Double.parseDouble(scanner.nextLine());
-            account.withdraw(amount);
-            System.out.printf("Новый баланс: %.2f руб.\n", account.getBalance());
-        } catch (NumberFormatException e) {
-            System.out.println("Ошибка: введите корректную сумму");
+            if (amount > 0) {
+                account.withdraw(amount);
+                System.out.println(String.format("Снятие со счета ID %d: %.2f руб.",
+                        account.getId(), amount));
+            } else {
+                System.out.println("❌ Сумма должна быть положительной!");
+            }
+        } else {
+            System.out.println("❌ Неверный ввод суммы!");
+            scanner.next();
         }
     }
 
-    private static void performDeposit(Account account) {
-        System.out.println("\n=== ВНЕСЕНИЕ ДЕНЕГ ===");
-        System.out.printf("Текущий баланс: %.2f руб.\n", account.getBalance());
-        System.out.print("Введите сумму для внесения: ");
+    private static void depositMoney(Scanner scanner, Account account) {
+        System.out.print("Введите сумму для пополнения счета: ");
 
-        try {
-            double amount = Double.parseDouble(scanner.nextLine());
-            account.deposit(amount);
-            System.out.printf("Новый баланс: %.2f руб.\n", account.getBalance());
-        } catch (NumberFormatException e) {
-            System.out.println("Ошибка: введите корректную сумму");
+        if (scanner.hasNextDouble()) {
+            double amount = scanner.nextDouble();
+
+            if (amount > 0) {
+                account.deposit(amount);
+                System.out.println(String.format("Пополнение счета ID %d: %.2f руб.",
+                        account.getId(), amount));
+            } else {
+                System.out.println("❌ Сумма должна быть положительной!");
+            }
+        } else {
+            System.out.println("❌ Неверный ввод суммы!");
+            scanner.next();
         }
     }
 
-}
+    private static void showTransactionHistory(Account account) {
+        System.out.println("\nИСТОРИЯ ТРАНЗАКЦИЙ ДЛЯ " + account.getId());
+        System.out.println("-".repeat(80));
+
+        if (account.getTransactionCount() == 0) {
+            System.out.println("Транзакции отсутствуют.");
+        }
+        else System.out.println("Всего транзакций: " + account.getTransactionCount());
+        }
+    }
+
+
